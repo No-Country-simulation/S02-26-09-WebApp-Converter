@@ -1,7 +1,12 @@
 package com.nocountry.videoconverter.entities;
 
 /**
- * Descripción del estado de la conversión para optimizar la visualización.
+ * Inicializa los valores por defecto antes de persistir la entidad en la base de datos.
+ * <ul>
+ * <li>Estado inicial: PENDING</li>
+ * <li>Fecha de creación: Ahora</li>
+ * <li>OutputUrl: Cadena vacía (para evitar nulos)</li>
+ * </ul>
  */
 public enum JobStatus {
 
