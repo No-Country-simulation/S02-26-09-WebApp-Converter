@@ -7,7 +7,7 @@ export default function Home() {
         <>
             
             <section className="relative px-4 sm:px-8 md:px-16 lg:px-24 transition-all mt-80px">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-center transition-all py-6 font-bold tracking-tight leading-tight">
+                <h1 className="relative z-10 text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-center transition-all py-6 font-bold tracking-tight leading-tight">
                     Converti tus videos <br />
                     horizontales en{" "}
                     <span className="text-blue-700">
