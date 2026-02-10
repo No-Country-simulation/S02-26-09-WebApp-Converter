@@ -8,10 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class VideoJobService {
+public class ConversionJobService {
 
     private final VideoStorageService storageService;
     private final ConversionJobRepository repository;
+    private final VideoCutterService videoCutterService;
 
     public ConversionJob createJob(MultipartFile file) throws Exception {
 
@@ -19,7 +20,10 @@ public class VideoJobService {
 
         ConversionJob job = new ConversionJob();
         job.setInputUrl(path);
+        ConversionJob savedJob = repository.save(job);
 
-        return repository.save(job);
+        videoCutterService.cut(savedJob);
+
+        return savedJob;
     }
 }
