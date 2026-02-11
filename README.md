@@ -34,6 +34,7 @@ El proyecto está construido con una arquitectura moderna separando el Backend d
 | Nombre | Rol | LinkedIn |
 | :--- | :--- | :--- |
 | Iván Sierra | Backend Developer | [Perfil](https://linkedin.com/in/isierra93) |
+| Martin Rioja | Backend Developer | [Perfil](https://www.linkedin.com/in/martinriojac/) |
 | Christian Iván Ledesma | Frontend Developer | [Perfil](https://www.linkedin.com/in/christian-ivan-ledesma-800660268) |
 | Hector Duarte | Frontend Developer | [Perfil](https://www.linkedin.com/in/hector-duarte) |
 | Compañero 2 | UX/UI Designer | [Perfil](https://linkedin.com/in/usuario) |
