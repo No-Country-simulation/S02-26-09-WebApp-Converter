@@ -11,8 +11,8 @@ El proyecto está construido con una arquitectura moderna separando el Backend d
 
 ### 💻 Frontend
 - **Framework**: Next.js
-- **Lenguaje**: TypeScript
-- **Estilado**: (Aquí puedes agregar si usan Tailwind CSS o CSS Modules)
+- **Lenguaje**: javaScript-TypeScript
+- **Estilado**: Tailwind CSS
 
 ### 🛠 Backend
 - **Framework**: Spring Boot
