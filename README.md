@@ -34,7 +34,7 @@ El proyecto está construido con una arquitectura moderna separando el Backend d
 | Nombre | Rol | LinkedIn |
 | :--- | :--- | :--- |
 | Iván Sierra | Backend Developer | [Perfil](https://linkedin.com/in/isierra93) |
-| Compañero 1 | Frontend Developer | [Perfil](https://linkedin.com/in/usuario) |
+| Christian Iván Ledesma | Frontend Developer | [Perfil](https://github.com/ChristianIvanLedesma) |
 | Compañero 2 | UX/UI Designer | [Perfil](https://linkedin.com/in/usuario) |
 | Compañero 3 | QA / Tester | [Perfil](https://linkedin.com/in/usuario) |
 
