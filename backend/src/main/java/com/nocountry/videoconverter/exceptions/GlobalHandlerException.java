@@ -1,8 +1,6 @@
 package com.nocountry.videoconverter.exceptions;
 
 import com.nocountry.videoconverter.dto.ErrorDto;
-import com.nocountry.videoconverter.exceptions.business.EmptyFileException;
-import com.nocountry.videoconverter.exceptions.business.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

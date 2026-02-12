@@ -1,4 +1,4 @@
-package com.nocountry.videoconverter.exceptions.business;
+package com.nocountry.videoconverter.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
