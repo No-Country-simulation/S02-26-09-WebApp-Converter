@@ -1,5 +1,6 @@
 import { Upload } from "lucide-react";
 import Image from "next/image";
+import PrimaryButton from "../PrimaryButton/PrimaryButton";
 
 export default function BottomSection() {
     return (
@@ -10,7 +11,8 @@ export default function BottomSection() {
                     Listo para crear tu primer short?
                 </h2>
                 <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                    Subí tu video y empezá a reutilizar tu contenido en minutos.
+                    Subí tu video y empezá a reutilizar tu
+                    contenido en minutos.
                 </p>
                 <div className="flex justify-center py-2">
                     <Image
@@ -36,12 +38,10 @@ export default function BottomSection() {
                         Listo para crear tu primer short?
                     </h2>
                     <p className="text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl text-gray-700 leading-relaxed">
-                        Subí tu video y empezá a reutilizar tu contenido en minutos.
+                        Subí tu video y empezá a reutilizar
+                        tu contenido en minutos.
                     </p>
-                    <button className="inline-flex items-center gap-2 cursor-pointer bg-[#433BFF] text-white px-6 py-3 rounded-xl text-base font-semibold hover:bg-blue-800 transition-all">
-                        <Upload className="w-5 h-5" />
-                        Subir video
-                    </button>
+                    <PrimaryButton />
                 </div>
                 <div className="flex justify-center md:justify-end">
                     <Image
