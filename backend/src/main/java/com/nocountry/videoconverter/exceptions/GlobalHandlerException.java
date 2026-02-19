@@ -1,6 +1,9 @@
 package com.nocountry.videoconverter.exceptions;
 
 import com.nocountry.videoconverter.dto.ErrorDto;
+import com.nocountry.videoconverter.exceptions.business.EmptyFileException;
+import com.nocountry.videoconverter.exceptions.business.ResourceNotFoundException;
+import com.nocountry.videoconverter.exceptions.technical.StorageException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +53,21 @@ public class GlobalHandlerException {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDto);
+    }
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<ErrorDto> handleStorageException(
+            StorageException e,
+            HttpServletRequest request){
+
+        ErrorDto errorDto = new ErrorDto(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                request.getRequestURI(),
+                e.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto);
     }
 
 }
