@@ -29,6 +29,12 @@ public class VideoStorageService {
 
     public void delete(String pathStr) throws IOException {
         if (pathStr == null || pathStr.isBlank()) return;
+
+        // La ruta /out/ es solo para la web, la fisica en disco es videos_procesados/
+        if (pathStr.startsWith("/out/")) {
+            pathStr = pathStr.replace("/out/", "videos_procesados/");
+        }
+
         Path path = Paths.get(pathStr);
         Files.deleteIfExists(path); // Si no existe, no hace nada y sigue. Si falla lanza IOException
     }
