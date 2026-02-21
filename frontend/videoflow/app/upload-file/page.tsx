@@ -3,20 +3,11 @@
 import { useState } from "react";
 import UploadCard from "../components/UploadCard/UploadCard";
 import VideoEditor from "../components/VideoEditor/VideoEditor";
+import GeneratedVideo from "../components/GeneratedVideo/GeneratedVideo";
 
-const steps = [
-    "Subir",
-    "Seleccionar",
-    "Generar",
-    "Exportar",
-];
+const steps = ["Subir", "Seleccionar", "Generar", "Descargar"];
 
-function Timeline({
-    currentStep,
-}: {
-    currentStep: number;
-}) {
-    //text-[#797979]
+function Timeline({ currentStep }: { currentStep: number }) {
     return (
         <div
             className={`flex justify-center items-start gap-6 mx-auto text-black font-semibold mt-8`}
@@ -24,25 +15,17 @@ function Timeline({
             {steps.map((label, index) => {
                 const stepNumber = index + 1;
                 const isActive = stepNumber === currentStep;
-                const isCompleted =
-                    stepNumber < currentStep;
+                const isCompleted = stepNumber < currentStep;
 
                 return (
-                    <div
-                        key={stepNumber}
-                        className="flex items-start"
-                    >
+                    <div key={stepNumber} className="flex items-start">
                         <div
                             className={`flex flex-col items-center ${index !== 0 && "text-[#797979]"}`}
                         >
                             <div
                                 className={`
-              flex justify-center items-center
-              w-10 h-10
-              rounded-full
-              transition-all duration-300
-              ${
-                  isActive
+              flex justify-center items-center w-10 h-10 rounded-full transition-all duration-300
+                ${isActive
                       ? "bg-[#2F27CE] border-4 border-fuchsia-100/60 text-white"
                       : isCompleted
                         ? "bg-indigo-100 border border-indigo-600 text-indigo-600"
@@ -53,9 +36,7 @@ function Timeline({
                                 {stepNumber}
                             </div>
 
-                            <p className="text-sm mt-2">
-                                {label}
-                            </p>
+                            <p className="text-sm mt-2">{label}</p>
                         </div>
 
                         {/* Línea */}
@@ -65,11 +46,7 @@ function Timeline({
                                     className={`
                 w-14 h-0.5 mx-3 mt-5
                 transition-all duration-300
-                ${
-                    isCompleted
-                        ? "bg-indigo-600"
-                        : "bg-gray-300"
-                }
+                ${isCompleted ? "bg-indigo-600" : "bg-gray-300"}
               `}
                                 />
                             </div>
@@ -109,7 +86,12 @@ export default function Upload() {
 
             {currentStep === 3 && (
                 <div className="text-center mt-10 text-lg font-semibold">
-                    a terminar
+                    <GeneratedVideo />
+                </div>
+            )}
+            {currentStep === 4 && (
+                <div className="text-center mt-10 text-lg font-semibold">
+                    <p>Descargar terminar!!!</p>
                 </div>
             )}
         </>

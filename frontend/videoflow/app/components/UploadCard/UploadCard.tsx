@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { FileVideoCamera } from "lucide-react";
 import { CloudUpload } from "lucide-react";
 
+
 type UploadCardProps = {
     onUploadComplete?: (file: File) => void;
 };
@@ -56,11 +57,11 @@ export default function UploadCard({
 
     const handleFile = (selectedFile: File) => {
         if (!selectedFile.type.startsWith("video/")) {
-            setError("Solo se permiten archivos de video.");
+            setError("Formatos compatibles: MP4-WebM-MOV-AVI");
             return;
         }
-
-        setError(null);
+        
+        
         setFile(selectedFile);
         startUpload(selectedFile);
     };
@@ -75,6 +76,18 @@ export default function UploadCard({
             }
         };
     }, []);
+
+    useEffect(() => {
+        if (!error) return;
+
+        const timer = setTimeout(() => {
+            setError(null);
+        }, 4000);
+
+        return () => clearTimeout(timer);
+    }, [error]);
+
+
 
     return (
         <div className="w-178 h-89.25 rounded-2xl flex flex-col py-8 px-6 m-auto border border-[#797979] mt-10 border-dashed bg-[#F2F2F7] gap-7.25">
@@ -129,9 +142,9 @@ export default function UploadCard({
                         Formatos compatibles: MP4, WebM,
                         MOV, AVI • Tamaño máximo: 500 MB
                     </p>
-
+                        {/*preguntar!!!!*/}
                     {error && (
-                        <p className="text-red-500 text-sm">
+                        <p className="w-80 bg-red-600 text-center m-auto text-white text-sm rounded-md p-2 animate-pulse">
                             {error}
                         </p>
                     )}

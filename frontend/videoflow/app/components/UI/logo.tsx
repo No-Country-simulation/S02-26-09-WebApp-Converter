@@ -1,4 +1,4 @@
-import CameraIcon from "./CameraIcon";
+import CameraIcon from "./icons/CameraIcon";
 
 export default function Logo() {
     return (
