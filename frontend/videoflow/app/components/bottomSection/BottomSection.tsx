@@ -4,7 +4,7 @@ import PrimaryButton from "../PrimaryButton/PrimaryButton";
 
 export default function BottomSection() {
     return (
-        <section className="bg-[#DEDCFF] mt-[80px] mb-[80px] ">
+        <section className="bg-[#F2F2F7] mt-[80px]  ">
             {/* Layout móvil: < 768px */}
 
             <div className="mx-[50px] md:mx-[100px] lg:mx-[187px] xl:mx-[187px] 2xl:mx-[350px] md:hidden py-[60.5px] md:py-[80px] md:max-w-125.5 lg:max-w-125.5 xl:max-w-125.5 2xl:max-w-125.5 ">
@@ -25,7 +25,7 @@ export default function BottomSection() {
                     />
                 </div>
                 <div className="flex justify-start">
-                    <button className="inline-flex items-center justify-center gap-2 cursor-pointer bg-[#433BFF] text-white w-[179px] h-[57px] rounded-[10px] text-base font-semibold hover:bg-blue-800 transition-all">
+                    <button className="inline-flex items-center justify-center gap-2 cursor-pointer bg-[#2F27CE] text-white w-[179px] h-[57px] rounded-[10px] text-base font-semibold hover:bg-[#433BFF] transition-all">
                         <Upload className="w-5 h-5" />
                         Subir video
                     </button>
