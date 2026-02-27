@@ -64,7 +64,7 @@ export default function GeneratedVideo({ onGenerate }: Props) {
                 </h5>
 
                 {/* Barra de progreso */}
-                <div className="m-auto h-5.5 w-97.5 sm:w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
+                <div className="m-auto h-5.5 w-77.5 sm:w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
                     <div
                         className="h-3 rounded-full bg-[#2F27CE] transition-all duration-200"
                         style={{ width: `${progress}%` }}
