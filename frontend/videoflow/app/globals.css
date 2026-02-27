@@ -87,3 +87,26 @@ html {
     animation-duration: 28s;
   }
 }
+
+
+/*animacion para los estados 1-2-3-4*/
+@keyframes stepActivePop {
+  0% {
+    transform: scale(0.8);
+    border-color: color-mix(in oklab, var(--color-fuchsia-100) 100%, transparent);
+  }
+
+  50% {
+    transform: scale(1.15);
+    border-color: color-mix(in oklab, var(--color-fuchsia-100) 80%, transparent);
+  }
+
+  100% {
+    transform: scale(1);
+    border-color: color-mix(in oklab, var(--color-fuchsia-100) 60%, transparent); /* final exacto */
+  }
+}
+
+.animate-stepActive {
+  animation: stepActivePop 0.45s ease-out forwards;
+}

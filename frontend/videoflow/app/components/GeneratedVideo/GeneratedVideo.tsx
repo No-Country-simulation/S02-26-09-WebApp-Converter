@@ -47,11 +47,11 @@ export default function GeneratedVideo({ onGenerate }: Props) {
         }
     }, [complete, onGenerate]);
 
-        //pasos confirmados
-      const getStepStatus = (index: number) => {
-          const stepProgress = 100 / steps.length; 
-          return progress >= (index + 1) * stepProgress;
-      };
+    // Barra de progreso 1, 2, 3, 4  confirmado
+    const getStepStatus = (index: number) => {
+        const stepProgress = 100 / steps.length;
+        return progress >= (index + 1) * stepProgress;
+    };
 
     return (
         <div className="mt-20 flex w-full justify-center px-5 sm:px-12 md:px-39 lg:px-91 2xl:px-151">
@@ -64,7 +64,7 @@ export default function GeneratedVideo({ onGenerate }: Props) {
                 </h5>
 
                 {/* Barra de progreso */}
-                <div className="m-auto h-5.5 w-full max-w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
+                <div className="m-auto h-5.5 w-97.5 sm:w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
                     <div
                         className="h-3 rounded-full bg-[#2F27CE] transition-all duration-200"
                         style={{ width: `${progress}%` }}

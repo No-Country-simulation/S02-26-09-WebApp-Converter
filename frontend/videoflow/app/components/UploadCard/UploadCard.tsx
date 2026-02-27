@@ -41,7 +41,7 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
             setProgress(100);
             setStatus("completed");
 
-            // avisamos al padre
+            //avis al componente padre
             if (onUploadComplete) {
                 onUploadComplete(selectedFile);
             }
