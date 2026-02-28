@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { Timeline } from "@/app/upload-file/page";
 import PlayDownloadIcon from "../UI/icons/play-Download-icon";
-
+import { Volume2 } from "lucide-react";
 
 export default function Download() {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,6 +13,8 @@ export default function Download() {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [quality, setQuality] = useState("");
+    const [volume, setVolume] = useState(0.7);
+    const [showVolume, setShowVolume] = useState(false);
     //obtenemos el video
     const searchParams = useSearchParams();
     const videoUrl = searchParams.get("videoUrl");
@@ -74,6 +76,14 @@ const formatTime = (time: number) => {
         else if (height >= 480) setQuality("480p");
         else setQuality(`${height}p`);
     };
+
+    //volumen
+    const handleVolumeChange = (value: number) => {
+        setVolume(value);
+        if (videoRef.current) {
+            videoRef.current.volume = value;
+        }
+    };
     return (
         <>
             <Timeline currentStep={4} />
@@ -98,8 +108,52 @@ const formatTime = (time: number) => {
                     >
                         <PlayDownloadIcon isPlaying={isPlaying} />
                     </div>
+
                     <div className="absolute right-3 bottom-3 z-20 rounded-md bg-gray-500 px-2 py-1 text-[10px] text-white">
                         {formatTime(currentTime)}
+                    </div>
+                    {/*Botón de volumen */}
+                    <div className="absolute right-3 bottom-12 z-30">
+                        <button
+                            onClick={() => setShowVolume(!showVolume)}
+                            className="rounded-full bg-black/50 p-2 text-white backdrop-blur-md transition"
+                        >
+                            <Volume2 className="h-4 w-4 cursor-pointer" />
+                        </button>
+                    </div>
+
+                    {/*Barra vertica*/}
+                    <div
+                        className={`absolute right-6 bottom-24 z-20 transition-all duration-300 ${
+                            showVolume
+                                ? "translate-y-0 opacity-100"
+                                : "pointer-events-none translate-y-4 opacity-0"
+                        }`}
+                    >
+                        <div className="relative flex h-28 w-2 items-end overflow-hidden rounded-full bg-white/20">
+                            {/* Nivel visible*/}
+                            <div
+                                className="w-full bg-white transition-all duration-200"
+                                style={{ height: `${volume * 100}%` }}
+                            />
+
+                            {/* Input invisible*/}
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={volume}
+                                onChange={(e) =>
+                                    handleVolumeChange(Number(e.target.value))
+                                }
+                                className="absolute inset-0 cursor-pointer opacity-0"
+                                style={{
+                                    writingMode: "vertical-lr",
+                                    direction: "rtl",
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 

@@ -9,10 +9,10 @@ export default function PrimaryButton() {
     return (
         <button
             onClick={() => router.push("/upload-file")}
-            className="inline-flex items-center gap-2 cursor-pointer bg-[#2F27CE] text-white px-6 py-3 rounded-xl text-base font-semibold hover:bg-[#433BFF] transition-all"
+            className="inline-flex h-14.25 w-44.75 cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#2F27CE] text-base font-semibold text-white transition-all hover:bg-[#433BFF]"
         >
-            <FileVideoCamera className="w-5 h-5" />
-            <span className="text-sm sm:text-base font-semibold">
+            <FileVideoCamera className="h-5 w-5" />
+            <span className="text-sm font-semibold sm:text-base">
                 Subir video
             </span>
         </button>
