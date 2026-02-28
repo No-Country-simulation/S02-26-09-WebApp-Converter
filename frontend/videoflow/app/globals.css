@@ -110,3 +110,24 @@ html {
 .animate-stepActive {
   animation: stepActivePop 0.45s ease-out forwards;
 }
+
+/*error en file*/
+
+@keyframes errorOpen {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scaleX(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.animate-errorOpen {
+  animation: errorOpen 0.45s ease-out forwards;
+  transform-origin: center;
+}

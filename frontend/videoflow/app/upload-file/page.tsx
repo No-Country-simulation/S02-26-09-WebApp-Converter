@@ -1,21 +1,19 @@
 "use client";
 import { uploadVideo, getConversionStatus } from "../services/video.service";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import UploadCard from "../components/UploadCard/UploadCard";
 import VideoEditor from "../components/VideoEditor/VideoEditor";
 import GeneratedVideo from "../components/GeneratedVideo/GeneratedVideo";
 import { useRouter } from "next/navigation";
 import CortoSuccess from "../components/CortoSuccess/CortoSuccess";
 
-
-
 const steps = ["Subir", "Seleccionar", "Generar", "Descargar"];
 
 export function Timeline({ currentStep }: { currentStep: number }) {
     return (
-        <div className=" mt-17.5 mb-20 flex w-full justify-center items-center text-gray-400 px-5 sm:px-12 md:px-39 lg:px-0 m-auto">
+        <div className="m-auto mt-17.5 mb-20 flex w-full items-center justify-center px-5 text-gray-400 sm:px-12 md:px-39 lg:px-0">
             <div
-                className={` flex justify-center items-center h-16.5 w-full max-w-117.5  gap-2 font-semibold sm:gap-4 md:gap-6`}
+                className={`flex h-16.5 w-full max-w-117.5 items-center justify-center gap-2 font-semibold sm:gap-4 md:gap-6`}
             >
                 {steps.map((label, index) => {
                     const stepNumber = index + 1;
@@ -34,10 +32,10 @@ export function Timeline({ currentStep }: { currentStep: number }) {
                                 <div
                                     className={`flex h-8 w-8 items-center justify-center rounded-full text-sm transition-all duration-300 sm:h-10 sm:w-10 sm:text-base ${
                                         isActive
-                                            ? " animate-stepActive border-4 border-fuchsia-100/60 bg-[#2F27CE] text-white"
+                                            ? "animate-stepActive border-4 border-fuchsia-100/60 bg-[#2F27CE] text-white"
                                             : isCompleted
                                               ? "border border-indigo-600 bg-indigo-100 text-indigo-600"
-                                              : "border border-gray-300 bg-[#F2F2F7] text-gray-400"
+                                              : "bg-[#F2F2F7] text-gray-400"
                                     }`}
                                 >
                                     {stepNumber}
@@ -70,19 +68,22 @@ export function Timeline({ currentStep }: { currentStep: number }) {
     );
 }
 
+
 export default function Upload() {
     const [currentStep, setCurrentStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
     const [outputUrl, setOutputUrl] = useState<string | null>(null);
+    const [progress, setProgress] = useState(0);
+    const router = useRouter();
     const showSuccess = currentStep === 4 && !!outputUrl;
-    const router=useRouter();
 
-    //generate
+    // GENERATE
     const handleGenerate = async () => {
         if (!file) return;
 
         try {
             setCurrentStep(3);
+            setProgress(0);
 
             const data = await uploadVideo(file);
             const jobId = data.id;
@@ -91,12 +92,24 @@ export default function Upload() {
                 try {
                     const updated = await getConversionStatus(jobId);
 
+                    // progreso visual
+                    setProgress((prev) => {
+                        if (prev < 100) return prev + 5;
+                        return prev;
+                    });
+
                     if (updated.status === "COMPLETED") {
                         clearInterval(interval);
+
+                        setProgress(100);
                         setOutputUrl(
                             `http://localhost:8080${updated.outputUrl}`
                         );
-                        setCurrentStep(4)
+
+                        // pequeña pausa para que cargue toda la barra
+                        setTimeout(() => {
+                            setCurrentStep(4);
+                        }, 1000);
                     }
 
                     if (updated.status === "FAILED") {
@@ -111,8 +124,9 @@ export default function Upload() {
         } catch (error) {
             console.error("Error subiendo video:", error);
         }
-    }; 
-    
+    };
+
+    // rediccionamos 
     useEffect(() => {
         if (!showSuccess) return;
 
@@ -123,20 +137,19 @@ export default function Upload() {
         return () => clearTimeout(timer);
     }, [showSuccess, outputUrl, router]);
 
-     if (showSuccess) {
-         return <CortoSuccess />;
-     }
+    if (showSuccess) {
+        return <CortoSuccess />;
+    }
+
     return (
         <>
-            {/* Barra de progreso 1, 2, 3, 4 */}
-
             <Timeline currentStep={currentStep} />
 
             {currentStep === 1 && (
                 <UploadCard
                     onUploadComplete={(uploadedFile) => {
                         setFile(uploadedFile);
-                        setCurrentStep(2);
+                        setTimeout(() => setCurrentStep(2), 1000);
                     }}
                 />
             )}
@@ -145,16 +158,7 @@ export default function Upload() {
                 <VideoEditor file={file} onGenerate={handleGenerate} />
             )}
 
-            {currentStep === 3 && (
-                <div className="mt-10 text-center text-lg font-semibold">
-                    <GeneratedVideo
-                        onGenerate={() => {
-                            handleGenerate();
-                        }}
-                    />
-                </div>
-            )}
-        
+            {currentStep === 3 && <GeneratedVideo progress={progress} />}
         </>
     );
 }

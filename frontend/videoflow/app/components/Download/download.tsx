@@ -1,11 +1,11 @@
-"use client"
+"use client";
 import { useSearchParams } from "next/navigation";
 import DownloadIcon from "../UI/icons/Download-icon";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Timeline } from "@/app/upload-file/page";
 import PlayDownloadIcon from "../UI/icons/play-Download-icon";
-import { Volume2 } from "lucide-react";
+import { Volume2, VolumeOff } from "lucide-react";
 
 export default function Download() {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,8 +13,9 @@ export default function Download() {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [quality, setQuality] = useState("");
-    const [volume, setVolume] = useState(0.7);
-    const [showVolume, setShowVolume] = useState(false);
+    const [volume, setVolume] = useState(0.9);
+    const [prevVolume, setPrevVolume] = useState(0.5);
+    const [showVolume, setShowVolume] = useState(true);
     //obtenemos el video
     const searchParams = useSearchParams();
     const videoUrl = searchParams.get("videoUrl");
@@ -22,7 +23,7 @@ export default function Download() {
     if (!videoUrl) {
         return <p className="text-center">No se pudo obtener el video!</p>;
     }
-    //descarga 
+    //descarga
     const handleDownload = async () => {
         try {
             const response = await fetch(videoUrl);
@@ -42,12 +43,12 @@ export default function Download() {
         }
     };
 
-//tiempo del video
-const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-};
+    //tiempo del video
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    };
 
     const handleToggle = () => {
         if (!videoRef.current) return;
@@ -84,6 +85,21 @@ const formatTime = (time: number) => {
             videoRef.current.volume = value;
         }
     };
+
+    //alternar mute
+    const toggleVolume = () => {
+        if (!videoRef.current) return;
+
+        if (volume === 0) {
+            const newVolume = prevVolume || 1;
+            videoRef.current.volume = newVolume;
+            setVolume(newVolume);
+        } else {
+            setPrevVolume(volume);
+            videoRef.current.volume = 0;
+            setVolume(0);
+        }
+    };
     return (
         <>
             <Timeline currentStep={4} />
@@ -115,10 +131,17 @@ const formatTime = (time: number) => {
                     {/*Botón de volumen */}
                     <div className="absolute right-3 bottom-12 z-30">
                         <button
-                            onClick={() => setShowVolume(!showVolume)}
+                            onClick={() => {
+                                toggleVolume();
+                                setShowVolume((prev) => !prev);
+                            }}
                             className="rounded-full bg-black/50 p-2 text-white backdrop-blur-md transition"
                         >
-                            <Volume2 className="h-4 w-4 cursor-pointer" />
+                            {volume === 0 ? (
+                                <VolumeOff className="h-4 w-4 cursor-pointer" />
+                            ) : (
+                                <Volume2 className="h-4 w-4 cursor-pointer" />
+                            )}
                         </button>
                     </div>
 

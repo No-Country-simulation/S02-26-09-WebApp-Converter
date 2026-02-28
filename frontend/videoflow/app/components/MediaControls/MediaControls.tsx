@@ -19,6 +19,12 @@ type Props = {
     onSeek: (clientX: number) => void;
     onHover: (clientX: number) => void;
     setHoverTime: React.Dispatch<React.SetStateAction<number | null>>;
+    barRef: React.RefObject<HTMLDivElement | null>;
+    start: number;
+    end: number;
+    setDragging: React.Dispatch<React.SetStateAction<"start" | "end" | null>>;
+    startTime: number;
+    endTime: number;
 };
 
 export default function MediaControls({
@@ -35,6 +41,12 @@ export default function MediaControls({
     onHover,
     progressBarRef,
     setHoverTime,
+    barRef,
+    start,
+    end,
+    setDragging,
+    startTime,
+    endTime,
 }: Props) {
     //duración del video total
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -83,7 +95,7 @@ export default function MediaControls({
                     onMouseLeave={() => setHoverTime(null)}
                     onTouchStart={(e) => onSeek(e.touches[0].clientX)}
                 >
-                {/* Tooltip */}
+                    {/* Tooltip */}
                     {hoverTime !== null && (
                         <div
                             className="absolute -top-7 -translate-x-1/2 rounded bg-black px-2 py-1 text-xs text-white"
@@ -113,20 +125,58 @@ export default function MediaControls({
                     </p>
                     <p>0:00 seleccionado</p>
                 </div>
-                <div className="relative flex h-3.75 w-full items-center">
-                    <div className="absolute h-2.25 w-full rounded-full bg-[#2F27CE]"></div>
-                    <div className="absolute left-0 h-3.75 w-3.75 cursor-pointer rounded-full border border-[#2F27CE] bg-white"></div>
-                    <div className="absolute right-0 h-3.75 w-3.75 cursor-pointer rounded-full border border-[#2F27CE] bg-white"></div>
+                <div
+                    ref={barRef}
+                    className="relative flex h-3.75 w-full items-center"
+                >
+                    {/* fondo */}
+                    <div className="absolute h-2.25 w-full rounded-full bg-indigo-300"></div>
+
+                    {/* zona seleccionada */}
+                    <div
+                        className="absolute h-2.25 rounded-full bg-[#2F27CE]"
+                        style={{
+                            left: `${start}%`,
+                            width: `${end - start}%`,
+                        }}
+                    />
+
+                    {/* círculo start */}
+                    <div
+                        onMouseDown={() => setDragging("start")}
+                        className="absolute h-3.75 w-3.75 cursor-pointer rounded-full border border-[#2F27CE] bg-white"
+                        style={{
+                            left: `${start}%`,
+                            transform: "translateX(-50%)",
+                        }}
+                    ></div>
+
+                    {/* círculo end */}
+                    <div
+                        onMouseDown={() => setDragging("end")}
+                        className="absolute h-3.75 w-3.75 cursor-pointer rounded-full border border-[#2F27CE] bg-white"
+                        style={{
+                            left: `${end}%`,
+                            transform: "translateX(-50%)",
+                        }}
+                    ></div>
                 </div>
 
                 <div className="mt-0 flex w-full items-center justify-between pb-2 text-[14px]">
                     <p className="text-[#505050]">
-                        Comenzar en <span className="text-[#000000]">0:00</span>
+                        Comenzar en{" "}
+                        <span className="text-[#000000]">
+                            {formatTime(startTime)}
+                        </span>
                     </p>
                     <p className="text-[#505050]">
-                        Fin <span className="text-[#000000]">0:42</span>
+                        Fin{" "}
+                        <span className="text-[#000000]">
+                            {formatTime(endTime)}
+                        </span>
                     </p>
                 </div>
+
                 <div className="mt-0 flex w-full items-center justify-between">
                     <button
                         onClick={() => redirect("/")}

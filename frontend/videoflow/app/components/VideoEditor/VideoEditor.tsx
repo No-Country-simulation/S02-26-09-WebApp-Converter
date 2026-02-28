@@ -23,6 +23,8 @@ export default function VideoEditor({ file, onGenerate }: Props) {
     const [hoverTime, setHoverTime] = useState<number | null>(null);
     const [hoverPosition, setHoverPosition] = useState(0);
     const progressBarRef = useRef<HTMLDivElement>(null);
+    const startTime = (start / 100) * duration;
+    const endTime = (end / 100) * duration;
 
     const handlePlayPause = () => {
         const video = originalRef.current;
@@ -99,12 +101,15 @@ export default function VideoEditor({ file, onGenerate }: Props) {
 
         window.addEventListener("mousemove", handleMove);
         window.addEventListener("mouseup", stopDragging);
+        
 
         return () => {
             window.removeEventListener("mousemove", handleMove);
             window.removeEventListener("mouseup", stopDragging);
         };
     }, [dragging, start, end]);
+
+    
 
     return (
         <div className="mt-10 mb-18.25 flex w-full justify-center px-5 sm:px-14.5 md:px-25">
@@ -135,6 +140,12 @@ export default function VideoEditor({ file, onGenerate }: Props) {
                     onSeek={handleSeek}
                     onHover={handleHover}
                     setHoverTime={setHoverTime}
+                    barRef={barRef}
+                    start={start}
+                    end={end}
+                    setDragging={setDragging}
+                    startTime={startTime}
+                    endTime={endTime}
                 />
             </div>
         </div>

@@ -70,13 +70,13 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
         return () => clearTimeout(timer);
     }, [error]);
 
-    /* ("primera sección del carga de video responisve")*/
+    //"primera sección del carga de video responisve"
     return (
         <div className="mt-20 mb-18.25 w-full px-5 sm:px-12 md:px-39">
             <div className="mx-auto flex w-full flex-col gap-7.25 rounded-2xl border border-dashed border-[#797979] bg-[#F2F2F7] px-4 py-8 sm:px-6 lg:h-89.25 lg:w-178">
                 {status === "idle" && (
                     <p className="m-auto flex h-5.5 w-22.5 items-center justify-center text-center text-gray-500">
-                        <UploadIcon  />
+                        <UploadIcon />
                     </p>
                 )}
 
@@ -125,9 +125,15 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
                         </p>
                         {/*preguntar!!!!*/}
                         {error && (
-                            <p className="m-auto w-80 animate-bounce rounded-md bg-red-600/80 p-2 text-center text-sm text-white shadow-sm">
-                                {error}
-                            </p>
+                            <div className="pointer-events-none fixed inset-0 z-50 flex items-end justify-center mb-15">
+                                <div className="animate-errorOpen relative overflow-hidden rounded-md border border-red-500/60 bg-[#4d4c4c] px-8 py-4">
+                                    <div className="absolute top-0 left-0 h-full w-1 bg-red-600" />
+                                    <div className="absolute top-0 right-0 h-full w-1 bg-red-600" />
+                                    <p className="text-center text-sm font-semibold tracking-wider text-red-400">
+                                        ⚠ {error}
+                                    </p>
+                                </div>
+                            </div>
                         )}
                     </>
                 )}
@@ -141,7 +147,7 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
 
                         <div className="rounde-[10px] m-auto h-5.5 w-full max-w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
                             <div
-                                className="h-3 rounded-full bg-[#2F27CE] transition-all duration-200"
+                                className="h-3.5 rounded-full bg-[#2F27CE] transition-all duration-200"
                                 style={{
                                     width: `${progress}%`,
                                 }}
