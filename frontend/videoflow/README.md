@@ -1,37 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+**Descripción**
 
-## Getting Started
+Aplicación frontend del proyecto VideoConverter. Está construida con Next.js y TypeScript (estructura app router) y sirve como interfaz para subir videos, editar cortes y descargar resultados procesados por el backend.
 
-First, run the development server:
+**Estructura principal**
+
+- **frontend/videoflow**: raíz del frontend.
+    - [frontend/videoflow/app/page.tsx](frontend/videoflow/app/page.tsx) - entrada principal de la app.
+    - [frontend/videoflow/app/upload-file/page.tsx](frontend/videoflow/app/upload-file/page.tsx) - página de subida.
+    - [frontend/videoflow/app/Download/page.tsx](frontend/videoflow/app/Download/page.tsx) - página de descargas.
+    - [frontend/videoflow/app/components](frontend/videoflow/app/components) - componentes UI reutilizables (VideoEditor, UploadCard, MediaControls, etc.).
+    - [frontend/videoflow/app/services/video.service.ts](frontend/videoflow/app/services/video.service.ts) - cliente HTTP hacia el backend.
+    - [frontend/videoflow/package.json](frontend/videoflow/package.json) - scripts y dependencias.
+    - [frontend/videoflow/Dockerfile](frontend/videoflow/Dockerfile) - imagen Docker para el frontend.
+
+**Dependencias y scripts**
+
+Ver [frontend/videoflow/package.json](frontend/videoflow/package.json) para la lista completa. Los scripts principales son:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm run dev    # arranca servidor de desarrollo (puede usarse npm o yarn)
+pnpm build  # compila la app para producción
+pnpm start  # arranca la versión compilada
+pnpm lint   # ejecuta eslint
+pnpm format # formatea con prettier
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Se recomienda usar `pnpm` (hay `pnpm-lock.yaml`) pero `npm`/`yarn` también funcionan.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Ejecución local**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Instalar dependencias:
 
-## Learn More
+```bash
+pnpm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. Ejecutar en modo desarrollo:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# ir frontend/videoflow/
+pnpm run dev
+# abre http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Construir y arrancar producción:
 
-## Deploy on Vercel
+```bash
+pnpm build
+pnpm start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Componentes y flujos principales**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# VideoConverterApp
+- **UploadCard / upload-file**: formulario para seleccionar y subir un video. Llama a `uploadVideo(file)` en [app/services/video.service.ts](frontend/videoflow/app/services/video.service.ts).
+- **VideoEditor**: vista para previsualizar y cortar el video antes de generar el resultado.
+- **MediaControls**: controles reproducir/pausa/ir a frame.
+- **GeneratedVideo / Download**: muestra el video procesado y permite descargarlo.
+
+Se puede revisar los componentes en [frontend/videoflow/app/components] para detalles de implementación.
+
+**Integración con backend**
+
+El frontend espera que el backend exponga endpoints REST en `/api/conversions`:
+
+- `POST /api/conversions/upload` para subir videos (form-data con campo `file`).
+- `GET /api/conversions/{id}` para consultar estado y obtener resultado.
+
+Estos endpoints están codificados actualmente en [frontend/videoflow/app/services/video.service.ts](frontend/videoflow/app/services/video.service.ts). Adapta la URL si tu backend corre en otra dirección.
+
+**Docker**
+
+Para construir y ejecutar la imagen del frontend (usa el Dockerfile en la carpeta):
+
+```bash
+docker build -t videoflow-frontend -f frontend/videoflow/Dockerfile .
+docker run -p 3000:3000 --env NEXT_PUBLIC_API_URL=http://backend:8080 videoflow-frontend
+```
+
+En un entorno con `docker-compose`, asegura que el servicio del backend tenga el nombre y puerto esperados (por ejemplo `backend:8080`).
+
+**Testing, lint y formateo**
+
+- Ejecutar lint: `pnpm lint` (usa `eslint`).
+- Formatear: `pnpm format` (usa `prettier` y plugin de Tailwind).
+
+

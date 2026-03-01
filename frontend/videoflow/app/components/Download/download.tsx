@@ -15,7 +15,11 @@ export default function Download() {
     const [quality, setQuality] = useState("");
     const [volume, setVolume] = useState(0.9);
     const [prevVolume, setPrevVolume] = useState(0.5);
-    const [showVolume, setShowVolume] = useState(true);
+    const [showVolume, setShowVolume] = useState(false);
+    const volumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const [showControls, setShowControls] = useState(true);
+    const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    
     //obtenemos el video
     const searchParams = useSearchParams();
     const videoUrl = searchParams.get("videoUrl");
@@ -49,6 +53,7 @@ export default function Download() {
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     };
+
 
     const handleToggle = () => {
         if (!videoRef.current) return;
@@ -100,11 +105,36 @@ export default function Download() {
             setVolume(0);
         }
     };
+
+    const startTemporaryVisibility = (
+        setter: React.Dispatch<React.SetStateAction<boolean>>,
+        ref: React.MutableRefObject<NodeJS.Timeout | null>
+    ) => {
+        setter(true);
+
+        if (ref.current) {
+            clearTimeout(ref.current);
+        }
+
+        ref.current = setTimeout(() => {
+            setter(false);
+        }, 4000);
+    };
+
+    const showVolumeTemporarily = () =>
+        startTemporaryVisibility(setShowVolume, volumeTimeoutRef);
+
+    const showControlsTemporarily = () =>
+        startTemporaryVisibility(setShowControls, controlsTimeoutRef);
     return (
         <>
             <Timeline currentStep={4} />
             <section className="mx-auto mt-15 flex flex-col items-center gap-10 lg:h-130.5 lg:w-230 lg:flex-row lg:justify-between">
-                <div className="12px relative my-10 h-105 w-full max-w-81.25 rounded-xl border border-[#00000047] lg:mt-13 lg:h-118 lg:w-81.25">
+                <div
+                    className="12px relative my-10 h-105 w-full max-w-81.25 rounded-xl border border-[#00000047] lg:mt-13 lg:h-118 lg:w-81.25"
+                    onMouseMove={showControlsTemporarily}
+                    onTouchStart={showControlsTemporarily}
+                >
                     <video
                         ref={videoRef}
                         src={videoUrl}
@@ -118,22 +148,35 @@ export default function Download() {
 
                     <div
                         onClick={handleToggle}
-                        className={`absolute inset-0 z-10 flex cursor-pointer items-center justify-center rounded-xl transition ${
-                            !isPlaying ? "bg-black/40" : ""
-                        }`}
+                        className={`absolute inset-0 z-10 flex items-center justify-center rounded-xl transition ${
+                            !isPlaying && showControls ? "bg-black/40" : ""
+                        } ${showControls ? "cursor-pointer" : "pointer-events-none"}`}
                     >
-                        <PlayDownloadIcon isPlaying={isPlaying} />
+                        <div
+                            className={`transition-all duration-300 ${
+                                showControls
+                                    ? "scale-100 opacity-100"
+                                    : "scale-75 opacity-0"
+                            }`}
+                        >
+                            <PlayDownloadIcon isPlaying={isPlaying} />
+                        </div>
                     </div>
 
                     <div className="absolute right-3 bottom-3 z-20 rounded-md bg-gray-500 px-2 py-1 text-[10px] text-white">
                         {formatTime(currentTime)}
                     </div>
                     {/*Botón de volumen */}
-                    <div className="absolute right-3 bottom-12 z-30">
+                    <div
+                        className="absolute right-3 bottom-12 z-30"
+                        onMouseEnter={showVolumeTemporarily}
+                        onMouseLeave={showVolumeTemporarily}
+                        onTouchStart={showVolumeTemporarily}
+                    >
                         <button
                             onClick={() => {
                                 toggleVolume();
-                                setShowVolume((prev) => !prev);
+                                showVolumeTemporarily();
                             }}
                             className="rounded-full bg-black/50 p-2 text-white backdrop-blur-md transition"
                         >
@@ -147,6 +190,9 @@ export default function Download() {
 
                     {/*Barra vertica*/}
                     <div
+                        onMouseEnter={() => setShowVolume(true)}
+                        onMouseLeave={showVolumeTemporarily}
+                        onTouchStart={() => setShowVolume(true)}
                         className={`absolute right-6 bottom-24 z-20 transition-all duration-300 ${
                             showVolume
                                 ? "translate-y-0 opacity-100"
