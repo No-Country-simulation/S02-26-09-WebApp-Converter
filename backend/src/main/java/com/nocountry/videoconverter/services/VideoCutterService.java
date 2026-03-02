@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class VideoCutterService {
@@ -26,9 +29,20 @@ public class VideoCutterService {
 
         logger.info("Iniciando conversión para job ID: {}", conversionJob.getId());
 
-        // 🔹 Estado: PROCESSING
+        // 🔹 Estado inicial: PROCESSING
         conversionJob.setStatus(JobStatus.PROCESSING);
-        conversionJob.setDetailStatus("Procesando conversión con FFmpeg");
+
+        if (conversionJob.getStartTime() != null || conversionJob.getEndTime() != null) {
+            conversionJob.setDetailStatus(
+                    "Procesando segmento " +
+                            (conversionJob.getStartTime() != null ? conversionJob.getStartTime() : "inicio") +
+                            " - " +
+                            (conversionJob.getEndTime() != null ? conversionJob.getEndTime() : "fin")
+            );
+        } else {
+            conversionJob.setDetailStatus("Procesando conversión completa con FFmpeg");
+        }
+
         conversionJobRepository.save(conversionJob);
 
         try {
@@ -45,19 +59,48 @@ public class VideoCutterService {
 
             /*
              * ProcessBuilder permite ejecutar comandos del sistema operativo.
+             *
              * En este caso se invoca FFmpeg para:
+             *  - Opcionalmente recortar un segmento (-ss inicio, -to fin)
              *  - Tomar el archivo de entrada (-i)
-             *  - Aplicar un filtro de recorte (crop=ih*9/16:ih)
+             *  - Aplicar un filtro de recorte vertical (crop=ih*9/16:ih)
              *  - Forzar sobreescritura (-y)
              *  - Guardar el resultado en la ruta indicada
+             *
+             * El comando se construye dinámicamente dependiendo
+             * de si el usuario envió startTime y/o endTime.
              */
 
-            ProcessBuilder pb = new ProcessBuilder(
-                    "ffmpeg", "-i", inputPath,
-                    "-vf", "crop=ih*9/16:ih",
-                    "-y",
-                    outputPath
-            );
+            List<String> command = new ArrayList<>();
+            command.add("ffmpeg");
+
+            // 🔹 Input primero
+            command.add("-i");
+            command.add(inputPath);
+
+            // 🔹 Agregamos tiempo de inicio si existe
+            if (conversionJob.getStartTime() != null && !conversionJob.getStartTime().isBlank()) {
+                command.add("-ss");
+                command.add(conversionJob.getStartTime());
+            }
+
+            // 🔹 Agregamos tiempo de fin si existe
+            if (conversionJob.getEndTime() != null && !conversionJob.getEndTime().isBlank()) {
+                command.add("-to");
+                command.add(conversionJob.getEndTime());
+            }
+
+            // 🔹 Filtro de recorte vertical (16:9 → 9:16)
+            command.add("-vf");
+            command.add("crop=ih*9/16:ih");
+
+            // 🔹 Sobrescribir si ya existe
+            command.add("-y");
+
+            // 🔹 Archivo de salida
+            command.add(outputPath);
+
+            ProcessBuilder pb = new ProcessBuilder(command);
 
             logger.debug("Ejecutando comando FFmpeg para job {}: {}",
                     conversionJob.getId(), pb.command());

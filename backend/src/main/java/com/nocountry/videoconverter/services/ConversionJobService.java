@@ -21,7 +21,7 @@ public class ConversionJobService {
     private final ConversionJobRepository repository;
     private final VideoCutterService videoCutterService;
 
-    public ConversionJob createJob(MultipartFile file) {
+    public ConversionJob createJob(MultipartFile file, String startTime, String endTime) {
         logger.info("Iniciando creación de nuevo job de conversión");
 
         if (file == null || file.isEmpty()) {
@@ -35,6 +35,14 @@ public class ConversionJobService {
 
             ConversionJob job = new ConversionJob();
             job.setInputUrl(path);
+
+            //Guardamos tiempos opcionales
+            job.setStartTime(startTime);
+            job.setEndTime(endTime);
+
+            if (startTime != null || endTime != null) {
+                logger.info("Segmento solicitado - startTime: {}, endTime: {}", startTime, endTime);
+            }
 
             ConversionJob savedJob = repository.save(job);
 

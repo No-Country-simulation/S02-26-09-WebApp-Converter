@@ -39,6 +39,10 @@ public class ConversionJob {
 
     private String detailStatus;
 
+    private String startTime;
+
+    private String endTime;
+
     @PrePersist
     protected void onCreate(){
         this.outputUrl = "";
