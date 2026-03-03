@@ -1,52 +1,133 @@
-# Video Converter API
+# <img src="https://img.icons8.com/fluency/48/api-settings.png" width="32"/> Video Converter API
 
-API REST para la conversión automática de videos horizontales (16:9) a formato vertical (9:16), construida con **Spring Boot 4** y **FFmpeg**.
+<div align="center">
 
-## Tecnologías
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Java](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![FFmpeg](https://img.shields.io/badge/FFmpeg-Latest-007808?style=for-the-badge&logo=ffmpeg&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
 
-- **Java 25** + **Spring Boot 4.0.2**
-- **Spring Data JPA** (Hibernate + MySQL 8)
-- **FFmpeg** (conversión de video)
-- **Lombok**
-- **Springdoc OpenAPI** (Swagger UI)
-- **Docker + Docker Compose**
-- **MySQL 8.0**
+**API REST para conversión automática de videos horizontales (16:9) a verticales (9:16) con tracking inteligente de sujeto vía IA.**
 
-## Arquitectura del Proyecto
+</div>
+
+---
+
+## 📐 Arquitectura del Proyecto
 
 ```
 src/main/java/com/nocountry/videoconverter/
-├── configs/             # Configuraciones (CORS, Async)
-├── controllers/         # Endpoints REST
-├── dto/                 # Objetos de transferencia (ErrorDto)
-├── entities/            # Entidades JPA (ConversionJob, JobStatus)
-├── exceptions/          # Manejo global de errores
-│   ├── business/        # Excepciones de negocio
-│   └── technical/       # Excepciones técnicas
-├── repositories/        # Repositorios JPA
-└── services/            # Lógica de negocio
+├── configs/              # Configuraciones (CORS, Async, AI RestClient)
+│   ├── AiServiceConfig   # Bean RestClient para comunicación con ai-service
+│   ├── AsyncCutterConfig  # Pool de hilos para procesamiento async
+│   └── WebConfig          # CORS + servir videos estáticos
+├── controllers/
+│   └── ConversionJobController   # Endpoints REST
+├── dto/
+│   ├── ConversionJobDto    # Respuesta al frontend
+│   └── ErrorDto            # Estructura de errores
+├── entities/
+│   ├── ConversionJob       # Entidad JPA principal
+│   └── JobStatus           # Enum de estados del job
+├── exceptions/
+│   ├── business/           # EmptyFileException, ResourceNotFoundException
+│   └── technical/          # StorageException
+├── mappers/
+│   └── ConversionJobMapper # Entity → DTO
+├── repositories/
+│   └── ConversionJobRepository
+└── services/
+    ├── ConversionJobService   # Orquesta: guardar → analizar → cortar
+    ├── VideoAnalysisService   # Comunicación con ai-service + expr builder
+    ├── VideoCutterService     # Ejecuta FFmpeg con crop dinámico
+    ├── VideoStorageService    # Almacena videos en volumen compartido
+    └── VideoCleanupScheduler  # Limpieza automática cada 60s
 ```
 
-## Configuración
+---
 
-### Variables de entorno / application.properties
+## 🔄 Flujo de Procesamiento
 
-| Variable | Valor por defecto | Descripción |
+```
+POST /api/conversions/upload
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  ConversionJobService.createJob()                               │
+│                                                                 │
+│  1. 💾 VideoStorageService.save()                               │
+│     └── Guarda el video en videos_subidos/ (volumen compartido) │
+│                                                                 │
+│  2. 🔍 Estado → ANALYZING                                      │
+│     └── VideoAnalysisService.analyze()                          │
+│         ├── POST /analyze-segments → ai-service                 │
+│         ├── Recibe: [{time: 0, crop_x: 100}, {time: 2, ...}]   │
+│         └── Construye expresión FFmpeg con interpolación lineal │
+│                                                                 │
+│  3. 🎬 Estado → PROCESSING                                     │
+│     └── VideoCutterService.cut()  (async)                       │
+│         ├── FFmpeg con crop dinámico: crop=W:H:EXPRESSION:0     │
+│         └── El crop sigue al sujeto suavemente                  │
+│                                                                 │
+│  4. ✅ Estado → COMPLETED                                       │
+│     └── outputUrl = /out/video_vertical.mp4                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Integración con AI Service
+
+El `VideoAnalysisService` se comunica con el microservicio Python (`ai-service`) via HTTP:
+
+| Aspecto | Detalle |
+|---|---|
+| **Endpoint llamado** | `POST /analyze-segments` |
+| **Transporte** | `RestClient` (Spring Boot 4) |
+| **Timeout conexión** | 5 segundos |
+| **Timeout lectura** | 30 segundos |
+| **Fallback** | Si IA no responde → crop centrado (sin error) |
+| **Volumen compartido** | `videos_subidos/` → ambos servicios acceden al mismo archivo |
+
+La expresión FFmpeg generada usa interpolación lineal:
+
+```
+crop=ih*9/16:ih:if(between(t,0,2),100+(80)*(t-0)/2,if(between(t,2,4),180+...)):0
+                ▲                                                           ▲
+                └── crop_x cambia suavemente con t (tiempo en segundos) ────┘
+```
+
+---
+
+## ⚙️ Configuración
+
+### Variables de entorno
+
+| Variable | Default | Descripción |
 |---|---|---|
-| `spring.datasource.url` | `jdbc:mysql://localhost:3306/db-shortify` | URL de conexión a MySQL |
-| `spring.datasource.username` | `root` | Usuario de la base de datos |
-| `spring.datasource.password` | `1234` | Contraseña de la base de datos |
-| `spring.servlet.multipart.max-file-size` | `500MB` | Tamaño máximo de archivo permitido |
-| `spring.servlet.multipart.max-request-size` | `500MB` | Tamaño máximo de la petición |
+| `SERVER_PORT` | `8080` | Puerto del servidor |
+| `SPRING_DATASOURCE_URL` | `jdbc:mysql://localhost:3306/db-shortify` | Conexión MySQL |
+| `SPRING_DATASOURCE_USERNAME` | `root` | Usuario DB |
+| `SPRING_DATASOURCE_PASSWORD` | `1234` | Contraseña DB |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` | Estrategia DDL |
+| `AI_SERVICE_URL` | `http://localhost:8000` | URL del ai-service |
+| `AI_SERVICE_ENABLED` | `true` | Habilitar/deshabilitar análisis IA |
+
+### application.properties adicionales
+
+| Propiedad | Valor | Descripción |
+|---|---|---|
+| `spring.servlet.multipart.max-file-size` | `500MB` | Tamaño máximo de archivo |
+| `spring.servlet.multipart.max-request-size` | `500MB` | Tamaño máximo de request |
+| `ai.service.connect-timeout` | `5000` | Timeout de conexión (ms) |
+| `ai.service.read-timeout` | `30000` | Timeout de lectura (ms) |
 
 ### CORS
 
-Todas las rutas (`/**`) están habilitadas para cualquier origen (`*`) con los métodos `GET`, `POST`, `PUT` y `DELETE`.
+Todas las rutas (`/**`) están habilitadas para cualquier origen (`*`) con métodos `GET`, `POST`, `PUT`, `DELETE`.
 
+---
 
-## Documentación interactiva (Swagger)
-
-Una vez levantada la aplicación, acceder a:
+## 📖 Swagger UI
 
 ```
 http://localhost:8080/swagger-ui/index.html
@@ -54,103 +135,118 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-## Endpoints
+## 📡 Endpoints
 
 Base URL: `http://localhost:8080`
 
-### 1. Subir video
+### `POST /api/conversions/upload` — Subir video
 
-Sube un archivo de video y crea un trabajo de conversión. La conversión se ejecuta de forma **asíncrona**.
-
-```
-POST /api/conversions/upload
-```
+Sube un video y crea un job de conversión asíncrono con análisis IA.
 
 **Content-Type:** `multipart/form-data`
 
-**Parámetros:**
-
-| Nombre | Tipo | Requerido | Descripción |
+| Parámetro | Tipo | Requerido | Descripción |
 |---|---|---|---|
-| `file` | `MultipartFile` | Sí | Archivo de video a convertir (máx. 500MB) |
+| `file` | `MultipartFile` | ✅ | Archivo de video (máx. 500MB) |
+| `startTime` | `String` | ❌ | Tiempo de inicio del corte (ej: `00:00:05`) |
+| `endTime` | `String` | ❌ | Tiempo de fin del corte (ej: `00:01:30`) |
 
-**Respuesta exitosa — `200 OK`:**
+**Respuesta — `200 OK`:**
 
 ```json
 {
   "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "inputUrl": "videos/1735000000000_mi_video.mp4",
+  "inputUrl": "videos_subidos/1735000000000_mi_video.mp4",
   "outputUrl": "",
   "createdAt": "2026-02-23T00:50:00",
-  "status": "PENDING"
+  "status": "PENDING",
+  "cropX": null,
+  "subjectFound": null,
+  "aiConfidence": null
 }
 ```
 
-> **Nota:** El `status` inicial es `PENDING`. La conversión se procesa en segundo plano y pasa por los estados `PROCESSING` → `COMPLETED` o `FAILED`. Una vez completado, `outputUrl` contendrá la ruta al video convertido (ej: `/out/mi_video_vertical.mp4`).
+> El `status` avanza: `PENDING` → `ANALYZING` → `PROCESSING` → `COMPLETED`
 
 ---
 
-### 2. Consultar estado de un trabajo
+### `GET /api/conversions/{id}` — Consultar estado
 
-Obtiene el estado actual y los datos de un trabajo de conversión por su ID.
-
-```
-GET /api/conversions/{id}
-```
-
-**Parámetros de ruta:**
-
-| Nombre | Tipo | Requerido | Descripción |
+| Parámetro | Tipo | Requerido | Descripción |
 |---|---|---|---|
-| `id` | `String (UUID)` | Sí | ID del trabajo de conversión |
+| `id` | `String (UUID)` | ✅ | ID del job |
 
-**Respuesta exitosa — `200 OK`:**
+**Respuesta — `200 OK`:**
 
 ```json
 {
   "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "inputUrl": "videos/1735000000000_mi_video.mp4",
   "outputUrl": "/out/1735000000000_mi_video_vertical.mp4",
-  "createdAt": "2026-02-23T00:50:00",
   "status": "COMPLETED"
 }
 ```
 
 ---
 
-### 3. Acceder al video convertido
+### `GET /out/{filename}` — Descargar video convertido
 
-Los videos procesados se sirven como recursos estáticos.
-
-```
-GET /out/{nombre_del_archivo}
-```
-
-**Ejemplo:**
+Retorna directamente el archivo de video procesado.
 
 ```
 GET /out/1735000000000_mi_video_vertical.mp4
 ```
 
-Retorna directamente el archivo de video.
-
 ---
 
-## Estados del Trabajo (`JobStatus`)
+## 📊 Estados del Job (`JobStatus`)
+
+```
+PENDING ──▶ ANALYZING ──▶ PROCESSING ──▶ COMPLETED
+                │              │
+                ▼              ▼
+             FAILED         FAILED
+                              │
+                              ▼
+                           EXPIRED (auto-cleanup)
+```
 
 | Estado | Descripción |
 |---|---|
-| `PENDING` | El trabajo fue creado y está en cola para procesarse |
-| `PROCESSING` | FFmpeg está convirtiendo el video |
-| `COMPLETED` | La conversión finalizó correctamente. `outputUrl` contiene la ruta al resultado |
-| `FAILED` | Ocurrió un error durante la conversión |
-| `EXPIRED` | El trabajo expiró (reservado para limpieza futura) |
+| `PENDING` | Job creado, esperando procesamiento |
+| `ANALYZING` | 🤖 El ai-service está analizando el video para detectar al sujeto |
+| `PROCESSING` | 🎬 FFmpeg está convirtiendo el video con crop inteligente |
+| `COMPLETED` | ✅ Video vertical listo. `outputUrl` contiene la ruta |
+| `FAILED` | ❌ Error durante el análisis o la conversión |
+| `EXPIRED` | 🧹 Job eliminado por el scheduler (> 30 min) |
 
 ---
 
-## Manejo de Errores
+## 🗃 Modelo de Datos
 
-Todas las respuestas de error siguen una estructura estandarizada usando el DTO `ErrorDto`:
+### Entidad `ConversionJob`
+
+Tabla: `conversion_jobs`
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `String (UUID)` | Identificador único (auto-generado) |
+| `inputUrl` | `String` | Ruta del video original |
+| `outputUrl` | `String` | Ruta del video convertido |
+| `createdAt` | `LocalDateTime` | Fecha de creación |
+| `status` | `JobStatus` | Estado actual del job |
+| `detailStatus` | `String` | Mensaje de detalle del estado |
+| `startTime` | `String` | Tiempo de inicio del corte (opcional) |
+| `endTime` | `String` | Tiempo de fin del corte (opcional) |
+| `cropX` | `Integer` | Posición X de referencia del crop (primer segmento IA) |
+| `subjectFound` | `Boolean` | Si se detectó un sujeto en el video |
+| `aiConfidence` | `Double` | Confianza de la detección (0.0 — 0.95) |
+| `cropExpression` | `String (@Lob)` | Expresión FFmpeg dinámica para tracking |
+
+---
+
+## ❌ Manejo de Errores
+
+Estructura estandarizada para todas las respuestas de error:
 
 ```json
 {
@@ -161,94 +257,45 @@ Todas las respuestas de error siguen una estructura estandarizada usando el DTO 
 }
 ```
 
-### Campos del error
-
-| Campo | Tipo | Descripción |
+| Código | Excepción | Causa |
 |---|---|---|
-| `timeStamp` | `String (ISO 8601)` | Fecha y hora en que ocurrió el error |
-| `status` | `int` | Código HTTP del error |
-| `path` | `String` | Ruta del endpoint que generó el error |
-| `message` | `String` | Mensaje descriptivo del error |
-
-### Tipos de errores
-
-#### `400 Bad Request` — Archivo vacío (`EmptyFileException`)
-
-Se retorna cuando se intenta subir un archivo vacío o nulo.
-
-```json
-{
-  "timeStamp": "2026-02-23T00:50:00",
-  "status": 400,
-  "path": "/api/conversions/upload",
-  "message": "No se recibió ningún archivo."
-}
-```
-
-#### `404 Not Found` — Recurso no encontrado (`ResourceNotFoundException`)
-
-Se retorna cuando se consulta un trabajo con un ID que no existe en la base de datos.
-
-```json
-{
-  "timeStamp": "2026-02-23T00:50:00",
-  "status": 404,
-  "path": "/api/conversions/abc-123",
-  "message": "No se encontró un archivo con el id: abc-123 ."
-}
-```
-
-#### `500 Internal Server Error` — Error de almacenamiento (`StorageException`)
-
-Se retorna cuando ocurre un error al guardar el archivo en el sistema de archivos.
-
-```json
-{
-  "timeStamp": "2026-02-23T00:50:00",
-  "status": 500,
-  "path": "/api/conversions/upload",
-  "message": "Error al guardar el archivo."
-}
-```
-
-#### `500 Internal Server Error` — Error genérico (`Exception`)
-
-Se retorna para cualquier otra excepción no controlada.
-
-```json
-{
-  "timeStamp": "2026-02-23T00:50:00",
-  "status": 500,
-  "path": "/api/conversions/upload",
-  "message": "Ocurrió un error inesperado en el servidor."
-}
-```
+| `400` | `EmptyFileException` | Archivo vacío o nulo |
+| `404` | `ResourceNotFoundException` | Job ID no encontrado |
+| `500` | `StorageException` | Error guardando el archivo |
+| `500` | `Exception` | Error genérico no controlado |
 
 ---
 
-## Limpieza Automática
+## 🧹 Limpieza Automática
 
-Un scheduler (`VideoCleanupScheduler`) se ejecuta **cada 60 segundos** y elimina:
+El `VideoCleanupScheduler` se ejecuta **cada 60 segundos** y elimina:
 
-- Los archivos de video (original y procesado) del disco.
-- El registro del trabajo de la base de datos.
+- ✅ Archivos de video (original + procesado) del disco
+- ✅ Registro del job de la base de datos
 
-**Condiciones para la eliminación:**
-- El trabajo fue creado hace más de **30 minutos**.
-- El trabajo **no** está en estado `PROCESSING`.
+**Condiciones:**
+- El job fue creado hace más de **30 minutos**
+- El job **no** está en estado `PROCESSING` ni `ANALYZING`
 
 ---
 
-## Modelo de Datos
+## 🏃 Ejecución Local (sin Docker)
 
-### Entidad `ConversionJob`
+### Prerrequisitos
 
-Tabla: `conversion_jobs`
+- Java 25 (JDK)
+- Maven
+- MySQL 8 corriendo en `localhost:3306` con DB `db-shortify`
+- FFmpeg instalado y en el PATH
+- (Opcional) ai-service corriendo en `localhost:8000`
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | `String (UUID)` | Identificador único generado automáticamente |
-| `inputUrl` | `String` | Ruta del video original subido |
-| `outputUrl` | `String` | Ruta del video convertido (`""` hasta que se complete) |
-| `createdAt` | `LocalDateTime` | Fecha y hora de creación del trabajo |
-| `status` | `JobStatus (Enum)` | Estado actual del trabajo |
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+Si no tenés el ai-service corriendo, setear `AI_SERVICE_ENABLED=false`:
+
+```bash
+AI_SERVICE_ENABLED=false ./mvnw spring-boot:run
+```

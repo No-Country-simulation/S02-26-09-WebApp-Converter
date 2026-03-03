@@ -11,6 +11,7 @@ package com.nocountry.videoconverter.entities;
 public enum JobStatus {
 
     PENDING("PENDING"),
+    ANALYZING("ANALYZING"),
     PROCESSING("PROCESSING"),
     COMPLETED("COMPLETED"),
     FAILED("FAILED"),

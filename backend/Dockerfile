@@ -32,8 +32,8 @@ RUN apk update && \
 # Copiamos el .jar generado en la Etapa 1 a esta imagen final
 COPY --from=builder /build/target/*.jar app.jar
 
-# Creamos las carpetas que usa la app
-RUN mkdir -p /videos /videos_procesados
+# Creamos las carpetas que usa la app (relativas al WORKDIR /app)
+RUN mkdir -p /app/videos /app/videos_procesados /app/videos_subidos
 
 # Comando para arrancar la app
 ENTRYPOINT ["java", "-jar", "app.jar"]

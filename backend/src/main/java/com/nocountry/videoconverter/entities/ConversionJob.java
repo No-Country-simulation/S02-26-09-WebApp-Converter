@@ -37,11 +37,30 @@ public class ConversionJob {
     @Enumerated(EnumType.STRING)
     private JobStatus status;
 
+    private String detailStatus;
+
+    private String startTime;
+
+    private String endTime;
+
+    // Campos de análisis IA
+    private Integer cropX;
+
+    private Boolean subjectFound;
+
+    private Double aiConfidence;
+
+    // Expresión FFmpeg dinámica para tracking del sujeto (puede ser larga)
+    @Lob
+    private String cropExpression;
+
+
     @PrePersist
     protected void onCreate(){
         this.outputUrl = "";
         this.createdAt = LocalDateTime.now();
         this.status = JobStatus.PENDING;
+        this.detailStatus = "Archivo recibido, pendiente de procesamiento";
     }
 
 }

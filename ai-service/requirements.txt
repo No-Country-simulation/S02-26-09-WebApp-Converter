@@ -1,0 +1,4 @@
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+opencv-python-headless==4.11.0.86
+numpy==2.2.3
