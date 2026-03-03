@@ -129,9 +129,9 @@ export default function Download() {
     return (
         <>
             <Timeline currentStep={4} />
-            <section className="mx-auto mt-15 flex flex-col items-center gap-10 lg:h-130.5 lg:w-230 lg:flex-row lg:justify-between">
+            <section className="mx-auto mt-15 mb-18.25 flex flex-col items-center gap-10 lg:h-130.5 lg:w-230 lg:flex-row lg:justify-between">
                 <div
-                    className="12px relative my-10 h-105 w-full max-w-81.25 rounded-xl border border-[#00000047] lg:mt-13 lg:h-118 lg:w-81.25"
+                    className="12px relative mt-10 h-105 w-full max-w-81.25 rounded-xl border border-[#00000047] lg:mt-13 lg:h-118 lg:w-81.25"
                     onMouseMove={showControlsTemporarily}
                     onTouchStart={showControlsTemporarily}
                 >

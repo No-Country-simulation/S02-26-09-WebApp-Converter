@@ -9,14 +9,21 @@ type UploadCardProps = {
 export default function UploadCard({ onUploadComplete }: UploadCardProps) {
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [progress, setProgress] = useState(0);
+    const [progress, setProgress] = useState(10);
     const [status, setStatus] = useState<"idle" | "uploading" | "completed">("idle");
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const completedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+    const MAX_SIZE = 500 * 1024 * 1024;
+
     const handleFile = (selectedFile: File) => {
+        //validamos
         if (!selectedFile.type.startsWith("video/")) {
             setError("Formatos compatibles: MP4-WebM-MOV-AVI");
+            return;
+        }
+        if (selectedFile.size > MAX_SIZE) {
+            setError("El archivo supera el tamaño máximo de 500MB");
             return;
         }
 

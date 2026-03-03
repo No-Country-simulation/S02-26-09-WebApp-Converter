@@ -6,6 +6,8 @@ import VideoEditor from "../components/VideoEditor/VideoEditor";
 import GeneratedVideo from "../components/GeneratedVideo/GeneratedVideo";
 import { useRouter } from "next/navigation";
 import CortoSuccess from "../components/CortoSuccess/CortoSuccess";
+import ErrorGenerated from "../components/errores/error-generated";
+
 
 const steps = ["Subir", "Seleccionar", "Generar", "Descargar"];
 
@@ -76,14 +78,18 @@ export default function Upload() {
     const [progress, setProgress] = useState(0);
     const router = useRouter();
     const showSuccess = currentStep === 4 && !!outputUrl;
+    const [hasError, setHasError] = useState(false);
+
+    const API = process.env.NEXT_PUBLIC_API_URL;
 
     // GENERATE
     const handleGenerate = async () => {
         if (!file) return;
 
         try {
+            setHasError(false);
             setCurrentStep(3);
-            setProgress(0);
+            setProgress(5);
 
             const data = await uploadVideo(file);
             const jobId = data.id;
@@ -102,14 +108,12 @@ export default function Upload() {
                         clearInterval(interval);
 
                         setProgress(100);
-                        setOutputUrl(
-                            `http://localhost:8080${updated.outputUrl}`
-                        );
+                        setOutputUrl(`${API}${updated.outputUrl}`);
 
-                        // pequeña pausa para que cargue toda la barra
+                        //equeña pausa barra
                         setTimeout(() => {
                             setCurrentStep(4);
-                        }, 1000);
+                        }, 2000);
                     }
 
                     if (updated.status === "FAILED") {
@@ -119,10 +123,12 @@ export default function Upload() {
                 } catch (error) {
                     console.error("Error consultando estado:", error);
                     clearInterval(interval);
+                    setHasError(true)
                 }
             }, 2000);
         } catch (error) {
             console.error("Error subiendo video:", error);
+            setHasError(true)
         }
     };
 
@@ -141,6 +147,20 @@ export default function Upload() {
         return <CortoSuccess />;
     }
 
+
+    if (hasError) {
+        return (
+            <ErrorGenerated
+                onRetry={() => {
+                    setHasError(false);
+                    setCurrentStep(1);
+                    setFile(null);
+                    setOutputUrl(null);
+                    setProgress(0);
+                }}
+            />
+        );
+    }
     return (
         <>
             <Timeline currentStep={currentStep} />
