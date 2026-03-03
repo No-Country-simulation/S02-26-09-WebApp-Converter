@@ -1,6 +1,8 @@
 package com.nocountry.videoconverter.controllers;
 
+import com.nocountry.videoconverter.dto.ConversionJobDto;
 import com.nocountry.videoconverter.entities.ConversionJob;
+import com.nocountry.videoconverter.mappers.ConversionJobMapper;
 import com.nocountry.videoconverter.services.ConversionJobService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ConversionJobController {
 
     private final ConversionJobService conversionJobService;
+    private final ConversionJobMapper conversionJobMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(ConversionJobController.class);
 
@@ -44,7 +47,7 @@ public class ConversionJobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ConversionJob> getStatus(@PathVariable String id) {
+    public ResponseEntity<ConversionJobDto> getStatus(@PathVariable String id) {
 
         logger.info("Consulta de estado para job ID: {}", id);
 
@@ -52,8 +55,8 @@ public class ConversionJobController {
             ConversionJob job = conversionJobService.getJob(id);
 
             logger.debug("Estado actual del job {}: {}", id, job.getStatus());
-
-            return ResponseEntity.ok(job);
+            ConversionJobDto jobDto = conversionJobMapper.toDto(job);
+            return ResponseEntity.ok(jobDto);
 
         } catch (Exception e) {
             logger.error("Error consultando estado del job ID: {}", id, e);

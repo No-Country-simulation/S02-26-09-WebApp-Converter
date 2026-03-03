@@ -43,6 +43,18 @@ public class ConversionJob {
 
     private String endTime;
 
+    // Campos de análisis IA
+    private Integer cropX;
+
+    private Boolean subjectFound;
+
+    private Double aiConfidence;
+
+    // Expresión FFmpeg dinámica para tracking del sujeto (puede ser larga)
+    @Lob
+    private String cropExpression;
+
+
     @PrePersist
     protected void onCreate(){
         this.outputUrl = "";

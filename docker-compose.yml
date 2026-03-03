@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql-db:
     image: mysql:8.0
@@ -23,6 +21,8 @@ services:
     volumes:
       - ./backend/videos:/app/videos
       - ./backend/videos_procesados:/app/videos_procesados
+      # Volumen compartido con ai-service: el backend guarda aquí los videos subidos
+      - shared_videos:/app/videos_subidos
     depends_on:
       - mysql-db
     environment:
@@ -31,6 +31,10 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=1234
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # URL del microservicio IA (usada por VideoAnalysisService en Java)
+      - AI_SERVICE_URL=http://ai-service:8000
+      # Desactivado por defecto; se activa con el profile 'ai'
+      - AI_SERVICE_ENABLED=true
 
   frontend:
     build:
@@ -46,5 +50,37 @@ services:
       # - VITE_API_URL=http://localhost:8080
       - NODE_ENV=development
 
+  # -----------------------------------------------------------------------
+  # AI Service (Python + FastAPI + OpenCV)
+  # -----------------------------------------------------------------------
+  # Este servicio es OPCIONAL. Para levantarlo junto con el resto:
+  #   docker compose --profile ai up
+  #
+  # Para levantarlo de forma independiente:
+  #   docker compose up ai-service
+  #
+  # Para levantar todo SIN este servicio (comportamiento por defecto):
+  #   docker compose up
+  # -----------------------------------------------------------------------
+  ai-service:
+    profiles:
+      - ai
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: videoflow-ai-service
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mismo volumen compartido que el backend → lee los videos sin copiarlos
+      - shared_videos:/app/videos_subidos
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Para activar la IA en el backend, levantar con:
+      #   docker compose --profile ai up
+      # y agregar AI_SERVICE_ENABLED=true en el bloque environment del backend
+
 volumes:
   mysql_data:
+  # Volumen compartido entre backend y ai-service
+  shared_videos:

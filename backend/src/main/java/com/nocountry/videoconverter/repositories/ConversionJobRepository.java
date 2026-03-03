@@ -11,6 +11,4 @@ public interface ConversionJobRepository extends JpaRepository<ConversionJob, St
     List<ConversionJob> findByCreatedAtBeforeAndStatusNotIn(
             LocalDateTime cutoff,
             List<JobStatus> excludedJobStatus );
-
-    List<ConversionJob> findByCreatedAtBeforeAndStatusNot(LocalDateTime cutoff, JobStatus status);
 }

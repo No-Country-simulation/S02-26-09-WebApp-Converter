@@ -18,8 +18,8 @@ public class VideoStorageService {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoStorageService.class);
 
-    // como aun los videos no se almacenan en algun repo los guardo en esta carpeta local
-    private final String UPLOAD_DIR = "videos/";
+    // Los videos se guardan en el volumen compartido con el ai-service
+    private final String UPLOAD_DIR = "videos_subidos/";
 
     public String save(MultipartFile file) {
 

@@ -1,6 +1,7 @@
 package com.nocountry.videoconverter.services;
 
 import com.nocountry.videoconverter.entities.ConversionJob;
+import com.nocountry.videoconverter.entities.JobStatus;
 import com.nocountry.videoconverter.exceptions.business.EmptyFileException;
 import com.nocountry.videoconverter.exceptions.business.ResourceNotFoundException;
 import com.nocountry.videoconverter.repositories.ConversionJobRepository;
@@ -20,6 +21,7 @@ public class ConversionJobService {
     private final VideoStorageService storageService;
     private final ConversionJobRepository repository;
     private final VideoCutterService videoCutterService;
+    private final VideoAnalysisService videoAnalysisService;
 
     public ConversionJob createJob(MultipartFile file, String startTime, String endTime) {
         logger.info("Iniciando creación de nuevo job de conversión");
@@ -45,9 +47,23 @@ public class ConversionJobService {
             }
 
             ConversionJob savedJob = repository.save(job);
-
             logger.info("Job creado con ID: {}", savedJob.getId());
 
+            // --- Fase de análisis IA ---
+            savedJob.setStatus(JobStatus.ANALYZING);
+            savedJob.setDetailStatus("Analizando video con IA para determinar posición de recorte...");
+            repository.save(savedJob);
+
+            // La ruta del video dentro del contenedor ai-service es la misma
+            // porque ambos comparten el volumen en /app/videos_subidos
+            String sharedPath = "/app/" + path;
+            videoAnalysisService.analyze(savedJob, sharedPath);
+            repository.save(savedJob);
+
+            logger.info("Análisis IA completado para job {}. cropX={}, subjectFound={}",
+                    savedJob.getId(), savedJob.getCropX(), savedJob.getSubjectFound());
+
+            // --- Fase de corte con FFmpeg ---
             logger.debug("Iniciando proceso de corte para job {}", savedJob.getId());
             videoCutterService.cut(savedJob);
 

@@ -91,8 +91,23 @@ public class VideoCutterService {
             }
 
             // 🔹 Filtro de recorte vertical (16:9 → 9:16)
+            // Prioridad: expresión dinámica (tracking) > crop_x estático (IA) > centro
             command.add("-vf");
-            command.add("crop=ih*9/16:ih");
+            if (conversionJob.getCropExpression() != null && !conversionJob.getCropExpression().isBlank()) {
+                // Tracking dinámico: la expresión cambia crop_x con el tiempo
+                command.add("crop=ih*9/16:ih:" + conversionJob.getCropExpression() + ":0");
+                logger.info("Usando crop dinámico (tracking) para job {}", conversionJob.getId());
+            } else if (conversionJob.getCropX() != null) {
+                // Crop estático del análisis IA
+                command.add("crop=ih*9/16:ih:" + conversionJob.getCropX() + ":0");
+                logger.info("Usando crop_x={} estático del análisis IA para job {}",
+                        conversionJob.getCropX(), conversionJob.getId());
+            } else {
+                // Sin IA: crop centrado por defecto
+                command.add("crop=ih*9/16:ih");
+                logger.info("Sin análisis IA. Usando crop centrado para job {}",
+                        conversionJob.getId());
+            }
 
             // 🔹 Sobrescribir si ya existe
             command.add("-y");
