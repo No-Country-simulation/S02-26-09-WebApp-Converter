@@ -2,7 +2,7 @@
 services:
   mysql-db:
     image: mysql:8.0
-    container_name: mysql-db-shortify
+    container_name: mysql-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "1234"
@@ -11,12 +11,18 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    # Agregamos esto para que Docker verifique cuándo MySQL está realmente vivo
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: videoflow-backend
+    container_name: backend
     ports:
       - "8080:8080"
     volumes:
@@ -25,7 +31,8 @@ services:
       # Volumen compartido con ai-service: el backend guarda aquí los videos subidos
       - shared_videos:/app/videos_subidos
     depends_on:
-      - mysql-db
+      mysql-db:
+          condition: service_healthy
     environment:
       - SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/db-shortify?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
@@ -41,14 +48,14 @@ services:
     build:
       context: ./frontend/videoflow
       dockerfile: Dockerfile
-    container_name: videoflow-frontend
+    container_name: frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
     environment:
       # TODO: Descomentar y ajustar cuando el frontend necesite conectarse al backend
-      # - VITE_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
       - NODE_ENV=development
 
   # -----------------------------------------------------------------------
@@ -69,7 +76,7 @@ services:
     build:
       context: ./ai-service
       dockerfile: Dockerfile
-    container_name: videoflow-ai-service
+    container_name: ai-service
     ports:
       - "8000:8000"
     volumes:
