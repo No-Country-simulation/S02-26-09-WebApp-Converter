@@ -123,7 +123,7 @@ export default function MediaControls({
                         <ScissorsIcon />
                         Seleccionar fragmento
                     </p>
-                    <p>0:00 seleccionado</p>
+                    <p>{formatTime(endTime - startTime)} seleccionado</p>
                 </div>
                 <div
                     ref={barRef}
