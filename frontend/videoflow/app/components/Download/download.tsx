@@ -22,6 +22,7 @@ export default function Download() {
     const [showControls, setShowControls] = useState(true);
     const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [downloadError, setDownloadError] = useState<string | null>(null);
     //obtenemos el video
     const searchParams = useSearchParams();
     const videoUrl = searchParams.get("videoUrl");
@@ -32,7 +33,7 @@ export default function Download() {
     //descarga
     const handleDownload = async () => {
         setIsDownloading(true);
-
+        setDownloadError(null)
         // Esperamos 3 segundos antes de descargar
         setTimeout(async () => {
             try {
@@ -48,10 +49,13 @@ export default function Download() {
 
                 a.remove();
                 window.URL.revokeObjectURL(url);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Error descargando el video:", error);
+                setDownloadError(
+                    "Error al descargar el video."
+                );
             } finally {
-                setIsDownloading(false); 
+                setIsDownloading(false);
             }
         }, 3000);
     };
@@ -275,34 +279,61 @@ export default function Download() {
                     </div>
 
                     <div className="mt-8 w-full lg:h-30 lg:w-104.75">
-                        <button
-                            onClick={handleDownload}
-                            className={`flex h-12.5 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] ${isDownloading ? "bg-[#433BFF66]/40" : "bg-[#2F27CE]"} px-6 py-3 text-[#FAFAFA]`}
-                            disabled={isDownloading}
-                        >
-                            {isDownloading ? (
-                                <>
-                                    <span className="animate-spin text-gray-400">
-                                        <RetryDownloadIcon />
-                                    </span>
-                                    <p className="text-[#505050]">
-                                        Descargando
-                                    </p>
-                                </>
-                            ) : (
-                                <>
-                                    <DownloadIcon />
-                                    <p>Descargar</p>
-                                </>
+                        <>
+                            
+                            {!downloadError && !isDownloading && (
+                                <p className="m-auto mb-5 w-75 text-center text-[#2F27CE]">
+                                    Ya podés descargar tu video
+                                </p>
                             )}
-                        </button>
 
-                        <Link
-                            href="/upload-file"
-                            className="mt-4 flex h-12.5 w-full items-center justify-center rounded-xl bg-[#F2F2F7] px-5 py-2.5 text-center text-[#000000]"
-                        >
-                            Crear otro corto
-                        </Link>
+                           
+                            {downloadError && (
+                                <p className="m-auto mb-5 w-75 text-center text-red-500">
+                                    {downloadError}
+                                </p>
+                            )}
+
+                            <button
+                                onClick={handleDownload}
+                                className={`flex h-12.5 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] px-6 py-3 text-[#FAFAFA] ${
+                                    isDownloading
+                                        ? "bg-[#433BFF66]/40"
+                                        : downloadError
+                                          ? "bg-[#E10A0A33] hover:bg-red-500"
+                                          : "bg-[#2F27CE] hover:bg-[#433BFF]"
+                                }`}
+                                disabled={isDownloading}
+                            >
+                                {isDownloading ? (
+                                    <>
+                                        <span className="animate-spin text-gray-400">
+                                            <RetryDownloadIcon />
+                                        </span>
+                                        <p className="text-[#505050]">
+                                            Descargando
+                                        </p>
+                                    </>
+                                ) : downloadError ? (
+                                    <>
+                                        <RetryDownloadIcon />
+                                        <p>Reintentar</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <DownloadIcon />
+                                        <p>Descargar</p>
+                                    </>
+                                )}
+                            </button>
+
+                            <Link
+                                href="/upload-file"
+                                className="mt-4 flex h-12.5 w-full items-center justify-center rounded-xl bg-[#F2F2F7] px-5 py-2.5 text-center text-[#000000]"
+                            >
+                                Crear otro corto
+                            </Link>
+                        </>
                     </div>
                 </div>
             </section>
