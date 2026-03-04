@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useMemo } from "react";
 
 type Props = {
     file: File;
-    onGenerate: () => void;
+    onGenerate: (startTime: number, endTime: number) => void;
 };
 
 export default function VideoEditor({ file, onGenerate }: Props) {
@@ -79,7 +79,7 @@ export default function VideoEditor({ file, onGenerate }: Props) {
         setHoverTime(clamped * duration);
     };
 
-    // barra para cortar aun falta corregir
+    
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
             if (!dragging || !barRef.current) return;
@@ -101,15 +101,12 @@ export default function VideoEditor({ file, onGenerate }: Props) {
 
         window.addEventListener("mousemove", handleMove);
         window.addEventListener("mouseup", stopDragging);
-        
 
         return () => {
             window.removeEventListener("mousemove", handleMove);
             window.removeEventListener("mouseup", stopDragging);
         };
     }, [dragging, start, end]);
-
-    
 
     return (
         <div className="mt-10 mb-18.25 flex w-full justify-center px-5 sm:px-14.5 md:px-25">
@@ -133,7 +130,7 @@ export default function VideoEditor({ file, onGenerate }: Props) {
                     isPlaying={isPlaying}
                     duration={duration}
                     currentTime={currentTime}
-                    onGenerate={onGenerate}
+                    onGenerate={() => onGenerate(startTime, endTime)}
                     progressBarRef={progressBarRef}
                     hoverTime={hoverTime}
                     hoverPosition={hoverPosition}

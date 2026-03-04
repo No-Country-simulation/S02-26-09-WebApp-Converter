@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import CortoSuccess from "../components/CortoSuccess/CortoSuccess";
 import ErrorGenerated from "../components/errores/error-generated";
 
-
 const steps = ["Subir", "Seleccionar", "Generar", "Descargar"];
 
 export function Timeline({ currentStep }: { currentStep: number }) {
@@ -70,7 +69,6 @@ export function Timeline({ currentStep }: { currentStep: number }) {
     );
 }
 
-
 export default function Upload() {
     const [currentStep, setCurrentStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
@@ -83,7 +81,7 @@ export default function Upload() {
     const API = process.env.NEXT_PUBLIC_API_URL;
 
     // GENERATE
-    const handleGenerate = async () => {
+    const handleGenerate = async (startTime?: number, endTime?: number) => {
         if (!file) return;
 
         try {
@@ -91,7 +89,8 @@ export default function Upload() {
             setCurrentStep(3);
             setProgress(5);
 
-            const data = await uploadVideo(file);
+          
+            const data = await uploadVideo(file, startTime, endTime);
             const jobId = data.id;
 
             const interval = setInterval(async () => {
@@ -123,16 +122,16 @@ export default function Upload() {
                 } catch (error) {
                     console.error("Error consultando estado:", error);
                     clearInterval(interval);
-                    setHasError(true)
+                    setHasError(true);
                 }
             }, 2000);
         } catch (error) {
             console.error("Error subiendo video:", error);
-            setHasError(true)
+            setHasError(true);
         }
     };
 
-    // rediccionamos 
+    // rediccionamos
     useEffect(() => {
         if (!showSuccess) return;
 
@@ -146,7 +145,6 @@ export default function Upload() {
     if (showSuccess) {
         return <CortoSuccess />;
     }
-
 
     if (hasError) {
         return (
