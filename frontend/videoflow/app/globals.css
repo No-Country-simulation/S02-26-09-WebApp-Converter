@@ -112,11 +112,16 @@ html {
 }
 
 /*error en Generate*/
-@keyframes pulseError {
-  0%, 100% { transform: scale(1); color: #E10A0A; }
-  50% { transform: scale(1.2); color: #FF6B6B; }
+@keyframes shakeSoft {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+  
+  
 }
 
-.animate-pulseError {
-  animation: pulseError 0.8s ease-in-out infinite;
+.animate-shakeSoft {
+  animation: shakeSoft 0.2s ease-in-out;
 }

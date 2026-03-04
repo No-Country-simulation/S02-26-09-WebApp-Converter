@@ -14,7 +14,7 @@ export default function ErrorGenerated({ onRetry }: { onRetry: () => void }) {
                     </h2>
 
                     <div className="mb-8 flex items-center justify-center">
-                        <ErrorIcon className="animate-pulseError" />
+                        <ErrorIcon className="animate-shakeSoft text-red-600" />
                     </div>
 
                     <button

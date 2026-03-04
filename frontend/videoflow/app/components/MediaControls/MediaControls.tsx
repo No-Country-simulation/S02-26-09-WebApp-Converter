@@ -5,6 +5,7 @@ import PlayIcon from "../UI/icons/playIcon";
 import PauseIcon from "../UI/icons/pauseIcon";
 import NextIcon from "../UI/icons/NextIcon";
 
+
 type Props = {
     onPrev?: () => void;
     onPlay?: () => void;
@@ -127,7 +128,8 @@ export default function MediaControls({
                 </div>
                 <div
                     ref={barRef}
-                    className="relative flex h-3.75 w-full items-center"
+                    className="relative flex h-3.75 w-full items-center touch-none"
+                
                 >
                     {/* fondo */}
                     <div className="absolute h-2.25 w-full rounded-full bg-indigo-300"></div>

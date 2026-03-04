@@ -155,11 +155,11 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
                                 }}
                             />
                         </label>
-                        <p className="text-center text-sm font-semibold text-[#505050]">
+                        <p className="text-[#505050] text-center text-sm font-semibold">
                             Formatos compatibles: MP4, WebM, MOV, AVI • Tamaño
                             máximo: 500 MB
                         </p>
-                        
+
                         {error && (
                             <div className="pointer-events-none fixed inset-0 z-50 mb-15 flex items-end justify-center">
                                 <div className="animate-errorOpen relative overflow-hidden rounded-md border border-red-500/60 bg-[#4d4c4c] px-8 py-4">
@@ -177,11 +177,11 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
                 {/*uploading*/}
                 {status === "uploading" && file && (
                     <div className="w-full">
-                        <p className="mb-2 text-center text-sm text-gray-600">
+                        <p className="mb-4 text-center text-sm text-gray-600">
                             {file.name}
                         </p>
 
-                        <div className="rounde-[10px] m-auto h-5.5 w-full max-w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
+                        <div className="m-auto h-5.5 w-full max-w-md overflow-hidden rounded-full bg-[#FFFFFF] p-1">
                             <div
                                 className="h-3.5 rounded-full bg-[#2F27CE] transition-all duration-200"
                                 style={{
@@ -190,7 +190,7 @@ export default function UploadCard({ onUploadComplete }: UploadCardProps) {
                             />
                         </div>
 
-                        <p className="mb-2 text-center text-sm text-gray-500">
+                        <p className="mt-4 text-center text-sm text-[#505050]">
                             Formatos compatibles: MP4, WebM, MOV, AVI • Tamaño
                             máximo: 500 MB
                         </p>
