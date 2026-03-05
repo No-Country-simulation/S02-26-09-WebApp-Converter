@@ -18,7 +18,7 @@ export default function Home() {
 
                     <h5 className="mt-4 text-[10px] leading-relaxed text-gray-500 sm:mt-6 sm:text-sm md:mt-8 md:text-base">
                         Subí tu video horizontal, seleccioná los mejores
-                        momentos y exportá cortos verticales para{" "}
+                        momentos y descarga cortos verticales para{" "}
                         <span className="text-gray-800">
                             TikTok, Reels y YouTube Shorts
                         </span>{" "}
@@ -32,10 +32,18 @@ export default function Home() {
 
                 <Style />
             </section>
-            <Reveal><Carrusel /></Reveal>
-            <Reveal><Card /></Reveal>
-            <Reveal><AppInstructions /></Reveal>
-            <Reveal><BottomSection /></Reveal>
+            <Reveal>
+                <Carrusel />
+            </Reveal>
+            <Reveal>
+                <Card />
+            </Reveal>
+            <Reveal>
+                <AppInstructions />
+            </Reveal>
+            <Reveal>
+                <BottomSection />
+            </Reveal>
         </>
     );
 }

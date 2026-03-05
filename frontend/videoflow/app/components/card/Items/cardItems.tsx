@@ -3,14 +3,12 @@ import CardIcon1 from "../../UI/icons/Card1-Icon";
 import CardIcon2 from "../../UI/icons/Card2-Icon";
 import CardIcon3 from "../../UI/icons/Card3-Icon";
 
-
 export type CardType = {
     id: number;
     icon: ReactNode;
     title: string;
     description: string;
 };
-
 
 export const cards: CardType[] = [
     {
@@ -32,32 +30,26 @@ export const cards: CardType[] = [
         icon: <CardIcon3 />,
         title: "Listo para publicar",
         description:
-            "Descargá tu video de manera rápida y lista para usar en todas las redes sociales.",
+            "Descargá en el formato perfecto para todas las principales plataformas sociales.",
     },
 ];
-
 
 type CardItemProps = Omit<CardType, "id">;
 
 export function CardItem({ icon, title, description }: CardItemProps) {
     return (
-        <article
-            className="group bg-white rounded-2xl border border-gray-200 shadow-sm
-        p-6 md:p-4 lg:p-6 xl:p-10 2xl:p-8
-        text-center transition-all duration-700 delay-300
-        hover:translate-y-2 hover:shadow-[0_4px_6px_-2px_rgba(92,66,184,0.5)] hover:bg-[#DEDCFF]"
-        >
-            <div className="mx-auto w-14 h-14 md:w-11 md:h-11 lg:w-14 lg:h-14 xl:w-22 xl:h-22 2xl:w-16 2xl:h-16 rounded-full bg-[#E7ECFC] group-hover:bg-[#5e58d4] flex items-center justify-center transition-all duration-700 delay-300 shadow-[0_6px_14px_rgba(165,160,255,0.35)]">
-                <div className="w-10 h-10 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-16 xl:h-16 2xl:w-12 2xl:h-12 rounded-full bg-[#CDD8FB] group-hover:bg-white transition-all duration-700 delay-300 shadow-[0_6px_14px_rgba(165,160,255,0.35)] flex items-center justify-center">
+        <article className="group rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all delay-300 duration-700 hover:translate-y-2 hover:bg-[#DEDCFF] hover:shadow-[0_4px_6px_-2px_rgba(92,66,184,0.5)] md:p-4 lg:p-6 xl:p-10 2xl:p-8">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E7ECFC] shadow-[0_6px_14px_rgba(165,160,255,0.35)] transition-all delay-300 duration-700 group-hover:bg-[#5e58d4] md:h-11 md:w-11 lg:h-14 lg:w-14 xl:h-22 xl:w-22 2xl:h-16 2xl:w-16">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CDD8FB] shadow-[0_6px_14px_rgba(165,160,255,0.35)] transition-all delay-300 duration-700 group-hover:bg-white md:h-8 md:w-8 lg:h-10 lg:w-10 xl:h-16 xl:w-16 2xl:h-12 2xl:w-12">
                     {icon}
                 </div>
             </div>
 
-            <h3 className="mt-4 md:mt-3 lg:mt-4 xl:mt-6 2xl:mt-4 text-[21px] md:text-[15px] lg:text-[16px] xl:text-[21px] 2xl:text-[18px] font-bold text-gray-900">
+            <h3 className="mt-4 text-[21px] font-bold text-gray-900 md:mt-3 md:text-[15px] lg:mt-4 lg:text-[16px] xl:mt-6 xl:text-[21px] 2xl:mt-4 2xl:text-[18px]">
                 {title}
             </h3>
 
-            <p className="mt-2 text-[16px] md:text-[12px] lg:text-[13px] xl:text-base 2xl:text-[14px] text-gray-700 leading-relaxed">
+            <p className="mt-2 text-[16px] leading-relaxed text-gray-700 md:text-[12px] lg:text-[13px] xl:text-base 2xl:text-[14px]">
                 {description}
             </p>
         </article>
