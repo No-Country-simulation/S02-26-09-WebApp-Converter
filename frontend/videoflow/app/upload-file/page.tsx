@@ -57,6 +57,7 @@ export default function Upload() {
                     if (updated.status === "FAILED") {
                         clearInterval(interval);
                         console.error("Falló la conversión");
+                        setHasError(true)
                     }
                 } catch (error) {
                     console.error("Error consultando estado:", error);
