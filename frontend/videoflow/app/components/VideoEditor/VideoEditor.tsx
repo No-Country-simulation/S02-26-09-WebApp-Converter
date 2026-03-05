@@ -81,46 +81,46 @@ export default function VideoEditor({ file, onGenerate }: Props) {
 
     
    useEffect(() => {
-       const handleMove = (clientX: number) => {
-           if (!dragging || !barRef.current) return;
+    const handleMove = (clientX: number) => {
+        if (!dragging || !barRef.current) return;
 
-           const rect = barRef.current.getBoundingClientRect();
-           const percent = ((clientX - rect.left) / rect.width) * 100;
-           const clamped = Math.min(Math.max(percent, 0), 100);
+        const rect = barRef.current.getBoundingClientRect();
+        const percent = ((clientX - rect.left) / rect.width) * 100;
+        const clamped = Math.min(Math.max(percent, 0), 100);
 
-           if (dragging === "start") {
-               setStart(Math.min(clamped, end - 1));
-           }
+        if (dragging === "start") {
+            setStart(Math.min(clamped, end - 1));
+        }
 
-           if (dragging === "end") {
-               setEnd(Math.max(clamped, start + 1));
-           }
-       };
+        if (dragging === "end") {
+            setEnd(Math.max(clamped, start + 1));
+        }
+    };
 
-       const handleMouseMove = (e: MouseEvent) => {
-           handleMove(e.clientX);
-       };
+    const handleMouseMove = (e: MouseEvent) => {
+        handleMove(e.clientX);
+    };
 
-       const handleTouchMove = (e: TouchEvent) => {
-           handleMove(e.touches[0].clientX);
-       };
+    const handleTouchMove = (e: TouchEvent) => {
+        handleMove(e.touches[0].clientX);
+    };
 
-       const stopDragging = () => setDragging(null);
+    const stopDragging = () => setDragging(null);
 
-       window.addEventListener("mousemove", handleMouseMove);
-       window.addEventListener("mouseup", stopDragging);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopDragging);
 
-       window.addEventListener("touchmove", handleTouchMove);
-       window.addEventListener("touchend", stopDragging);
+    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("touchend", stopDragging);
 
-       return () => {
-           window.removeEventListener("mousemove", handleMouseMove);
-           window.removeEventListener("mouseup", stopDragging);
+    return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", stopDragging);
 
-           window.removeEventListener("touchmove", handleTouchMove);
-           window.removeEventListener("touchend", stopDragging);
-       };
-   }, [dragging, start, end]);
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("touchend", stopDragging);
+    };
+}, [dragging, start, end]);
 
     return (
         <div className="mt-10 mb-18.25 flex w-full justify-center px-5 sm:px-14.5 md:px-25">
