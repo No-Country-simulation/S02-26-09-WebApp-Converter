@@ -2,6 +2,8 @@
 import { useSearchParams } from "next/navigation";
 import DownloadIcon from "../UI/icons/Download-icon";
 import RetryDownloadIcon from "../UI/icons/retry-Icon";
+import ErrorDownloadIcon from "../UI/icons/Error-Download";
+import Check from "../UI/icons/check";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Timeline from "../Timeline/Timeline";
@@ -281,18 +283,23 @@ export default function Download() {
 
                     <div className="mt-8 w-full lg:h-30 lg:w-104.75">
                         <>
-                            
                             {!downloadError && !isDownloading && (
-                                <p className="m-auto mb-5 w-75 text-center text-[#2F27CE]">
-                                    Ya podés descargar tu video
-                                </p>
+                                <div className="mb-4 flex w-100 items-center justify-center">
+                                    <Check />
+                                    <p className="text-center text-[#2F27CE]">
+                                        Ya podés descargar tu video
+                                    </p>
+                                </div>
                             )}
 
-                           
                             {downloadError && (
-                                <p className="m-auto mb-5 w-75 text-center text-red-500">
-                                    {downloadError}
-                                </p>
+                                <div className="mb-4 flex w-100 items-center justify-center text-red-500">
+                                    <ErrorDownloadIcon />
+
+                                    <p className="text-center">
+                                        {downloadError}
+                                    </p>
+                                </div>
                             )}
 
                             <button
